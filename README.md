@@ -51,7 +51,7 @@ The SMP Admin Portal is a comprehensive web application designed to streamline t
 
 1. **📂 Clone the repository**:
   ```bash
-   git clone https://github.com/CyberSaikat/QR-Attend-Admin.git
+   git clone https://github.com/CyberSaikat/smp-admin.git
   ```
 2. **📦 Install the dependencies**:
   ```bash
