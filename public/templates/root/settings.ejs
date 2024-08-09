@@ -1,0 +1,110 @@
+<%- include('../common/header.ejs') %>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white m-0 mb-2">
+                Add Departments
+            </div>
+            <div class="card-body">
+                <form id="addHodForm" onsubmit="return false">
+                    <div class="mb-3">
+                        <label class="form-label" for="name">Department Name</label>
+                        <input class="form-control" type="text" id="name" placeholder="Enter Name" name="name"
+                            required />
+                    </div>
+                    <div class="mb-3" id="submitBtn">
+                        <input type="submit" value="Add Department" class="btn btn-primary" onclick="addDept()">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white m-0 mb-2">
+                Department List
+            </div>
+            <div class="card-body">
+                <div class="table-responsive" id="departmentsTableContainer">
+                    <!-- Table will be loaded here -->
+                    <div class="w-100 h-100 d-flex justify-content-center align-items-center">
+                        <div class="spinner-border text-dark" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(() => {
+        getDeptList();
+    });
+    let loading = false;
+    const getDeptList = () => {
+        axios.get('/api/departments')
+            .then(res => {
+                let i = 1;
+                if (res.data.status == "success") {
+                    let departments = res.data.data;
+                    let tableHtml = '<table id="departmentsTable" class="table table-primary table-bordered text-center"><thead class="bg-primary text-white"><tr><th>Sl No</th><th>Department Name</th><th>Action</th></tr></thead><tbody>';
+                    for (let e in departments) {
+                        tableHtml += '<tr>';
+                        tableHtml += '<td>' + i++ + '</td>';
+                        tableHtml += '<td>' + e + '</td>';
+                        tableHtml += '<td><span class="btn btn-primary" onclick="removeDept()" data-attr="' + e + '">Remove</span></td>';
+                        tableHtml += '</tr>';
+                    }
+                    tableHtml += '</tbody></table>';
+                    $("#departmentsTableContainer").html(tableHtml);
+                    // Initialize DataTable
+                    $('#departmentsTable').DataTable();
+                } else {
+                    alert(res.data.message);
+                }
+            });
+    }
+    const addDept = () => {
+        const name = document.getElementById('name').value.toUpperCase();
+        if (name != "") {
+            if (loading) return;
+            loading = true;
+            $("#submitBtn").html('<div class="spinner-border text-dark" role="status"><span class="visually-hidden">Loading...</span></div>');
+            axios.post('/api/departments', { name })
+                .then(res => {
+                    loading = false;
+                    if (res.data.status == "success") {
+                        alert(res.data.message);
+                        getDeptList();
+                        $("#addHodForm")[0].reset();
+                        $("#submitBtn").attr("disabled", false);
+                        $("#submitBtn").html('<input type="submit" value="Add Department" class="btn btn-primary" onclick="addDept()">');
+                    } else {
+                        alert(res.data.message);
+                    }
+                })
+                .catch(err => {
+                    loading = false;
+                    alert(res.data.message);
+                });
+        } else {
+            alert("Enter department name");
+        }
+    }
+
+    const removeDept = () => {
+        const department = event.target.getAttribute('data-attr');
+        axios.post('/api/remove-dept', { department }).then(res => {
+            if (res.data.status == "success") {
+                alert(res.data.message);
+                getDeptList();
+            } else {
+                alert(res.data.message);
+            }
+        }).catch(err => {
+            alert(err.message);
+        });
+    }
+</script>
+<%- include('../common/footer.ejs') %>

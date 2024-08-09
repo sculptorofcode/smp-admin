@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Login - Admin Panel</title>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css?h=97380e22c8933e9aa79cbc2390b9f15a">
+    <link rel="stylesheet" href="/assets/fonts/fontawesome-all.min.css?h=fbfa80fe81882dd47f8abd5cbb011b19">
+    <link rel="stylesheet" href="/assets/css/styles.min.css?h=3db7a37dc048019533aad26146c577f5">
+    <link rel="stylesheet" href="/assets/css/style.css" />
+</head>
+
+<body class="bg-gradient-primary">
+    <div class="container" style="height: 100vh;">
+        <div class="row h-100 justify-content-center">
+            <div class="col-md-9 col-lg-12 col-xl-10 d-flex align-items-center">
+                <div class="card shadow-lg o-hidden border-0 my-5" style="width: 100%;">
+                    <div class="card-body p-0">
+                        <div class="row">
+                            <div class="col-lg-6 d-none d-lg-flex">
+                                <div class="flex-grow-1 bg-login-image"
+                                    style="background-image: url(&quot;/assets/img/images/sgp.jpg&quot;);">
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="p-5">
+                                    <div class="text-center">
+                                        <h4 class="text-dark mb-4">Welcome Back!</h4>
+                                        <% if(errorMessage) {%>
+                                        <div class="alert alert-danger" role="alert">
+                                            <%= errorMessage %>!
+                                        </div>
+                                        <% } %>
+                                    </div>
+                                    <form class="user" method="POST" action="/login">
+                                        <div class="mb-3"><input class="form-control form-control-user" type="email"
+                                                id="exampleInputEmail" aria-describedby="emailHelp"
+                                                placeholder="Enter Email Address..." name="email"></div>
+                                        <div class="mb-3"><input class="form-control form-control-user" type="password"
+                                                id="exampleInputPassword" placeholder="Password" name="password"></div>
+                                        <button class="btn btn-primary d-block btn-user w-100"
+                                            type="submit">Login</button>
+                                        <hr>
+                                    </form>
+                                    <div class="text-center"><a class="small" href="forgot-password.html">Forgot
+                                            Password?</a></div>
+                                    <hr><a href="/hod-login"
+                                        class="btn btn-primary d-block btn-google btn-user w-100 mb-2" role="button">HOD
+                                        Login</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/assets/bootstrap/js/bootstrap.min.js?h=e55bde7d6e36ebf17ba0b8c1e80e4065"></script>
+    <script src="/assets/js/script.min.js?h=bdf36300aae20ed8ebca7e88738d5267"></script>
+</body>
+
+</html>

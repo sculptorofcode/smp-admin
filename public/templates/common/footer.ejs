@@ -1,0 +1,49 @@
+</div>
+</div>
+<footer class="bg-white sticky-footer">
+    <div class="container my-auto">
+        <div class="text-center my-auto copyright"><span>Copyright © Admin Panel 2024</span></div>
+    </div>
+</footer>
+</div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+</div>
+<script>
+    $('.nav-item').click(function () {
+        let doc = $(this).find('.nav-link.collapsed').attr('data-target');
+        if (!$("nav").hasClass('toggled')) {
+            $('.sub-menu.show').not(doc).removeClass('show');
+            $(doc).toggleClass('show');
+            $(this).toggleClass('active');
+            $('.nav-item').not(this).removeClass('active');
+        }
+    });
+
+    window.onload = function () {
+        var loadingBar = document.getElementById('loading-bar');
+        loadingBar.style.width = '100%';
+        setTimeout(function () {
+            loadingBar.style.opacity = '0';
+        }, 300);
+    };
+    // Function to show loading bar
+    function showLoadingBar() {
+        $('.load').css({
+            'display': 'grid',
+            'opacity': '1'
+        });
+    }
+
+    // Function to hide loading bar
+    function hideLoadingBar() {
+        $('.load').css({
+            'display': 'none',
+            'opacity': '0'
+        });
+    }
+</script>
+<script src="/assets/bootstrap/js/bootstrap.min.js?h=e55bde7d6e36ebf17ba0b8c1e80e4065"></script>
+<script src="/assets/js/script.min.js?h=bdf36300aae20ed8ebca7e88738d5267"></script>
+<script src="/assets/js/chart.min.min.js?h=bd9843d1866f45d1406a12f7de05f9ff"></script>
+</body>
+
+</html>

@@ -1,0 +1,151 @@
+<%- include('../common/header.ejs') %>
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <div class="card-body bg-primary text-white m-0 p-2">
+                Pending teachers
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4 mb-3">
+                        <select name="dept" id="dept" class="form-select">
+                            <option>Select Department</option>
+                            <% if(userdata.usertype == "admin"){
+                            for (e in departments) { %>
+                            <option value="<%= e %>"><%= e %></option>
+                            <% }}else{ %>
+                            <option value="<%= userdata.department %>" selected><%= userdata.department %></option>
+                            <%} %>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md">
+                        <div id="pendingTable" class="table-responsive">
+                            <table class="table table-active table-bordered">
+                                <thead class="bg-primary">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Department</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% 
+                                    i = 0;
+                                    for (const teacher of teachers) { %>
+                                    <tr>
+                                        <td><%= ++i %></td>
+                                        <td><%= teacher.name %></td>
+                                        <td><%= teacher.email %></td>
+                                        <td><%= teacher.phone %></td>
+                                        <td><%= teacher.dept %></td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm"
+                                                onclick="verify('<%= teacher.dept %>','<%= teacher.semester %>','<%= teacher.uid %>')">Verify</button>
+                                        </td>
+                                    </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(() => {
+        $('table').DataTable();
+        $('#dept').change(() => {
+            let dept = $('#dept').val();
+            if (dept != 'Select Department') {
+                $("#pendingTable").html('<div class="w-100 h-100 d-flex justify-content-center align-items-center"><div class="spinner-border text-dark" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+                getteachers();
+            }
+        });
+    });
+
+    const getteachers = () => {
+        const dept = $('#dept').val();
+        const sem = $('#sem').val();
+        $.ajax({
+            url: '/teachers',
+            type: 'POST',
+            data: {
+                dept: dept,
+                sem: sem
+            },
+            success: (data) => {
+                buildTable(data);
+            },
+            error: (error) => {
+                $("#pendingTable").html("");
+                console.error(error);
+            }
+
+        });
+    }
+
+    const buildTable = (data) => {
+        const teachers = data.teachers;
+        const tbody = document.querySelector("table tbody");
+        let tableHtml = `<table class="table table-active table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Department</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+        teachers.forEach((teacher, index) => {
+            tableHtml += `
+            <tr>
+      <td>${index + 1}</td>
+      <td>${teacher.name}</td>
+      <td>${teacher.email}</td>
+      <td>${teacher.phone}</td>
+      <td>${teacher.dept}</td>
+      <td>
+        <button class="btn btn-primary btn-sm" onclick="verify('${teacher.dept}','${teacher.semester}','${teacher.uid}')">Verify</button>
+      </td>
+      </tr>
+    `;
+
+        });
+        tableHtml += `</tbody></table>`;
+        $('#pendingTable').html(tableHtml);
+        // Initialize DataTables
+        const table = $("table").DataTable();
+    };
+
+    const verify = (dept, sem, uid) => {
+        const data = {
+            dept: dept,
+            semester: sem,
+            uid: uid
+        };
+        console.log(data);
+        axios.post('/api/verify-teacher', data)
+            .then((response) => {
+                if (response.data['status'] == 'success') {
+                    alert('teacher verified successfully');
+                    getteachers();
+                } else {
+                    alert(response.data['message'] ? response.data['message'] : 'Failed to verify teacher');
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
+</script>
+<%- include('../common/footer.ejs') %>

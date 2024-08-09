@@ -1,0 +1,185 @@
+<%- include('../common/header.ejs') %>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white m-0 mb-2">
+                Add HOD
+            </div>
+            <div class="card-body">
+                <form id="addHodForm" onsubmit="return false">
+                    <div class="input-group mb-3 align-items-center">
+                        <label class="form-label" style="margin-right: 20px;" for="name">Department
+                            Name</label>
+                        <select name="department" id="department" class="form-select">
+                            <option value="0">Select Department</option>
+                        </select>
+                    </div>
+                    <span class="form-text text-danger font-weight-bold" id="dept-text"></span>
+                    <div class="mb-3">
+                        <label class="form-label" for="name">Name</label>
+                        <input class="form-control" type="text" id="name" placeholder="Enter Name" name="name"
+                            autocomplete="false" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="email">Email</label>
+                        <input class="form-control" type="email" id="email" placeholder="Enter Email" name="email"
+                            autocomplete="false" required onkeypress="validateEmail()" onkeyup="validateEmail()" />
+                        <div class="form-text text-danger font-weight-bold" id="email-text"></div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-lebel" for="number">Phone No</div>
+                        <input type="number" name="number" id="number" class="form-control"
+                            placeholder="Enter Phone No." onkeypress="validate()" onkeyup="validate()" minlength="10"
+                            maxlength="10" required>
+                        <div class="form-text text-danger font-weight-bold" id="number-text"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="password">Password</label>
+                        <input class="form-control" type="password" id="password" placeholder="Enter Password"
+                            name="password" required />
+                    </div>
+                    <div id="submitBtn">
+                        <input type="submit" value="Add HOD" class="btn btn-primary" onclick="addHod()">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white m-0 mb-2">
+                HOD List
+            </div>
+            <div class="card-body">
+                <div class="table-responsive" id="departmentsTableContainer">
+                    <!-- Table will be loaded here -->
+                    <div class="w-100 h-100 d-flex justify-content-center align-items-center">
+                        <div class="spinner-border text-dark" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    let loading = false;
+    $(document).ready(() => {
+        getDeptList();
+    });
+    const getDeptList = () => {
+        axios.get('/api/departments')
+            .then(res => {
+                if (res.data.status == "success") {
+                    let departments = res.data.data;
+                    let options = '';
+                    options += '<option value="0"> Select Department </option>';
+                    let tableHtml = '<table id="departmentsTable" class="table table-primary table-bordered text-center text-capitalize"><thead class="bg-primary text-white"><tr><th>Sl No</th><th>Department Name</th><th>name</th><th>Email</th><th>phone</th><th>action</th></tr></thead><tbody>';
+                    let i = 1;
+                    for (e in departments) {
+                        if (departments[e].hod == "")
+                            options += '<option value="' + e + '"> ' + e + ' </option>';
+                        else {
+                            tableHtml += '<tr>';
+                            tableHtml += '<td>' + i++ + '</td>';
+                            tableHtml += '<td>' + e + '</td>';
+                            tableHtml += '<td>' + departments[e].hod['name'] + '</td>';
+                            tableHtml += '<td class="text-lowercase">' + departments[e].hod['email'] + '</td>';
+                            tableHtml += '<td>' + departments[e].hod['number'] + '</td>';
+                            tableHtml += '<td><span class="btn btn-primary" onclick="removeHod()" data-attr="' + e + '">Remove</span></td>';
+                            tableHtml += '</tr>';
+                        }
+                    }
+                    $("#department").html(options);
+                    tableHtml += '</tbody></table>';
+                    $("#departmentsTableContainer").html(tableHtml);
+                    // Initialize DataTable
+                    $('#departmentsTable').DataTable();
+                } else {
+                    alert(res.data.message);
+                }
+            })
+            .catch(err => {
+                $("#submitbtn").html('<input type="submit" value="Add HOD" class="btn btn-primary" onclick="addHod()">');
+                alert(err.message);
+            });
+    }
+    const addHod = () => {
+        const formData = $("#addHodForm").serializeArray();
+        const jsonData = {};
+        formData.forEach(item => {
+            jsonData[item.name] = item.value;
+        });
+        if (validate() && validateEmail()) {
+            if (jsonData.department != 0 && jsonData.name.trim() != "" && jsonData.email.trim() != "" && jsonData.number.trim() != "" && jsonData.password.trim() != "") {
+                $("#submitBtn").html('<div class="spinner-border text-dark" role="status"><span class="visually-hidden">Loading...</span></div>');
+                loading = true;
+                axios.post('/api/add-hod', jsonData).then((res) => {
+                    $("#submitBtn").html('<input type="submit" value="Add HOD" class="btn btn-primary" onclick="addHod()">');
+                    if (res.data.status == "success") {
+                        alert(res.data.message);
+                        getDeptList();
+                        $("#addHodForm")[0].reset();
+                    } else {
+                        alert(res.data.message);
+                    }
+                }).catch(err => {
+                    $("#submitBtn").html('<input type="submit" value="Add HOD" class="btn btn-primary" onclick="addHod()">');
+                    loading = false;
+                    alert(err.message);
+                });
+            } else {
+                if (jsonData.department == 0) {
+                    $("#dept-text").html("Select Department")
+                }
+            }
+        }
+    }
+    const validate = () => {
+        const num = $("#number").val();
+        const length = num.length;
+        if (length != 10) {
+            $("#number").addClass('border border-danger');
+            $("#number-text").html("Number must be 10 digits").css({
+                "color": "red"
+            });
+            return false;
+        } else {
+            if (length == 10) {
+                $("#number").removeClass('border-danger');
+                $("#number-text").html("");
+                return true;
+            }
+        }
+    };
+
+    const validateEmail = () => {
+        const email = $("#email").val();
+        const isValid = emailRegex.test(email);
+        if (isValid) {
+            $("#email").removeClass('is-invalid');
+            $("#email-text").html("");
+            return true;
+        } else {
+            $("#email").addClass('is-invalid');
+            $("#email-text").html("Enter a valid email");
+            return false;
+        }
+    };
+    const removeHod = () => {
+        const department = event.target.getAttribute('data-attr');
+        axios.post('/api/remove-hod', { department }).then(res => {
+            if (res.data.status == "success") {
+                alert(res.data.message);
+                getDeptList();
+            } else {
+                alert(res.data.message);
+            }
+        }).catch(err => {
+            alert(err.message);
+        });
+    }
+</script>
+<%- include('../common/footer.ejs') %>

@@ -1,0 +1,183 @@
+<%- include('../common/header.ejs') %>
+<h3 class="text-dark mb-4">Profile</h3>
+<div class="row mb-3">
+    <div class="col-lg-4">
+        <div class="card mb-3">
+            <div class="card-body text-center shadow h-100">
+                <img class="rounded-circle mb-3 mt-4"
+                    src="<%= userdata.profilePic ? userdata.profilePic : 'https://storage.googleapis.com/smart-classroom-sgp.appspot.com/images/logo-black.png?GoogleAccessId=firebase-adminsdk-fzy7c%40smart-classroom-sgp.iam.gserviceaccount.com&Expires=16446997800&Signature=jAIWt2GVAOKUN9sSYhkw8w3cooJXcaLaN%2F%2FlhGg%2BqiDFQ2W3f0NAViYTK2R5XahIgwStnT2KdmGrX%2Bqg2Uc6bzLUzMzgMK5Q5kLPYCq4I%2Ba68Ld2iDsQIbZOzdJymsdU%2F6wpy5P80h0uI3kJljAPZE71kPYa4p7322Yr57RlrM8eDcXs7C2nNtR36XU7ZFPP4FGsMAEslTZRZUeXFHmqmqzfl2SvdUofxUK9deMD1w5LMHuHo3BlgfBp%2FiKL7A3s8RR%2BeVVgMIp0OyB6oQPv7aF84joNZiNLSbWAa5Aeu%2FXoc45xOZFtgjxRIXACulfuobo8cwunsZg%2F0AO1bbYtpw%3D%3D' %>"
+                    width="160" height="160" />
+                <div class="mb-3">
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#imageModal">
+                        Change Photo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="row">
+            <div class="col">
+                <div class="card shadow mb-3">
+                    <div class="card-header py-3">
+                        <p class="text-primary m-0 fw-bold">User Settings</p>
+                    </div>
+                    <div class="card-body">
+                        <form>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="email">
+                                            <strong>Email Address</strong></label>
+                                        <input class="form-control" type="email" id="email"
+                                            placeholder="user@example.com" name="email"
+                                            value="<%= userdata ? userdata.email : '' %>" readonly />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="first_name"><strong>Name</strong></label><input
+                                            class="form-control" type="text" id="first_name" placeholder="John"
+                                            name="first_name" value="<%= userdata ? userdata.name : '' %>" readonly />
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <p class="text-primary m-0 fw-bold">Contact Settings</p>
+                </div>
+                <div class="card-body">
+                    <form onsubmit="return false">
+                        <div class="mb-3">
+                            <label class="form-label" for="address"><strong>Address</strong></label><input
+                                class="form-control" type="text" id="address" placeholder="Enter Address" name="address"
+                                value="<%= userdata ? userdata.address : '' %>"
+                                <%= userdata.address ? 'readonly' : '' %> />
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label class="form-label" for="city"><strong>City</strong></label><input
+                                        class="form-control" type="text" id="city" placeholder="Enter city" name="city"
+                                        value="<%= userdata ? userdata.city : '' %>"
+                                        <%= userdata.city ? 'readonly' : '' %> />
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="mb-3">
+                                    <label class="form-label" for="country"><strong>Country</strong></label><input
+                                        class="form-control" type="text" id="country" value="India" name="country"
+                                        readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <button class="btn btn-primary btn-sm" type="submit" onclick="saveAddress()">
+                                Save&nbsp;Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Select Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="file" id="profilePic" accept="image/jpeg, image/png" onchange="updatePhoto()">
+                <img class="rounded-circle mb-3 mt-4" id="previewImage" width="160" height="160" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="uploadPhoto()" id="submitBtn">Change</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const saveAddress = () => {
+        const address = $("#address").val().trim();
+        const city = $("#city").val().trim();
+
+        if (address != "" && city != "") {
+            const data = {
+                address: address,
+                city: city,
+                usertype: '<%= userdata.usertype %>'
+            };
+            axios.post('/save-address', data)
+                .then(response => {
+                    alert(response.data.message);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle error as needed
+                });
+        } else {
+            alert('Please fill all fields');
+            return;
+        }
+    };
+    const updatePhoto = () => {
+        const imageInput = document.querySelector('#profilePic');
+        const image = imageInput.files[0];
+        const validFormats = ['image/jpeg', 'image/png'];
+        if (!image || !validFormats.includes(image.type)) {
+            alert('Please select a valid image (JPG or PNG).');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const imgPreview = document.querySelector('#previewImage');
+            imgPreview.src = event.target.result;
+        };
+        reader.readAsDataURL(image);
+    };
+    const uploadPhoto = () => {
+        $("#submitBtn").attr("disabled", true);
+        $("#submitBtn").text("Uploading...");
+        const imageInput = document.querySelector('#profilePic');
+        const image = imageInput.files[0];
+        const validFormats = ['image/jpeg', 'image/png'];
+        if (!image || !validFormats.includes(image.type)) {
+            alert('Please select a valid image (JPG or PNG).');
+            return;
+        }
+        const formData = new FormData();
+        formData.append('profilePic', image);
+        formData.append('usertype', '<%= userdata.usertype %>');
+        axios.post('/upload-photo', formData, {
+            headers: {
+                'accept': 'application/json',
+                'Accept-Language': 'en-US,en;q=0.8',
+                'Content-Type': `multipart/form-data; boundary=${formData._boundary}`,
+            }
+        })
+            .then(response => {
+                alert(response.data.message);
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    };
+</script>
+<%- include('../common/footer.ejs') %>

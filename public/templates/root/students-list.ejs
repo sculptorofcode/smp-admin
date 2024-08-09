@@ -1,0 +1,202 @@
+<%- include('../common/header.ejs') %>
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <div class="card-body bg-primary text-white m-0 p-2">
+                Student List
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md mb-3">
+                        <select name="dept" id="dept" class="form-select">
+                            <option>Select Department</option>
+                            <% if(userdata.usertype == "admin"){
+                            for (e in departments) { %>
+                            <option value="<%= e %>"><%= e %></option>
+                            <% }}else{ %>
+                            <option value="<%= userdata.department %>" selected><%= userdata.department %></option>
+                            <%} %>
+                        </select>
+                    </div>
+                    <div class="col-md">
+                        <select name="sem" id="sem" class="form-select">
+                            <option>Select Semester</option>
+                            <% 
+                            function addOrdinalSuffix(num) {
+                              const lastDigit = num % 10;
+                              const lastTwoDigits = num % 100;
+                            
+                              if (lastDigit === 1 && lastTwoDigits !== 11) {
+                                return num + "st";
+                              } else if (lastDigit === 2 && lastTwoDigits !== 12) {
+                                return num + "nd";
+                              } else if (lastDigit === 3 && lastTwoDigits !== 13) {
+                                return num + "rd";
+                              } else {
+                                return num + "th";
+                              }
+                            }
+                            for (let i = 1; i<= 6; i++) { %>
+                            <option value="<%= i %>"><%= addOrdinalSuffix(i) %></option>
+                            <% } %>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md">
+                        <div id="pendingTable" class="table-responsive">
+                            <table class="table table-active table-bordered">
+                                <thead class="bg-primary">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Date of Birth</th>
+                                        <th>Department</th>
+                                        <th>Semester</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% 
+                                    i = 0;
+                                    for (const student of students) { %>
+                                    <tr>
+                                        <td><%= ++i %></td>
+                                        <td><%= student.name %></td>
+                                        <td><%= student.email %></td>
+                                        <td><%= student.dob %></td>
+                                        <td><%= student.department %></td>
+                                        <td><%= student.semester %></td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm"
+                                                onclick="remove('<%= student.department %>','<%= student.semester %>','<%= student.uid %>')">Remove</button>
+                                        </td>
+                                    </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(() => {
+        $('table').DataTable();
+        $('#dept').change(() => {
+            let dept = $('#dept').val();
+            let sem = $('#sem').val();
+            if (dept != 'Select Department' && sem != 'Select Semester') {
+                $("#pendingTable").html('<div class="w-100 h-100 d-flex justify-content-center align-items-center"><div class="spinner-border text-dark" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+                getStudents();
+            }
+        });
+        $('#sem').change(() => {
+            let dept = $('#dept').val();
+            let sem = $('#sem').val();
+            if (dept != 'Select Department' && sem != 'Select Semester') {
+                $("#pendingTable").html('<div class="w-100 h-100 d-flex justify-content-center align-items-center"><div class="spinner-border text-dark" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+                getStudents();
+            }
+        });
+    });
+
+    const getStudents = () => {
+        const dept = $('#dept').val();
+        const sem = $('#sem').val();
+        $.ajax({
+            url: '/students-list',
+            type: 'POST',
+            data: {
+                dept: dept,
+                sem: sem
+            },
+            success: (data) => {
+                buildTable(data);
+            }
+        });
+    }
+
+    const buildTable = (data) => {
+        const students = data.students;
+        const tbody = document.querySelector("table tbody");
+        let tableHtml = `<table class="table table-active table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Date of Birth</th>
+                                    <th>Department</th>
+                                    <th>Semester</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+        students.forEach((student, index) => {
+            tableHtml += `
+            <tr>
+      <td>${index + 1}</td>
+      <td>${student.name}</td>
+      <td>${student.email}</td>
+      <td>${student.dob}</td>
+      <td>${student.department}</td>
+      <td>${student.semester}</td>
+      <td>
+        <button class="btn btn-primary btn-sm" onclick="remove('${student.department}','${student.semester}','${student.uid}')">Remove</button>
+      </td>
+      </tr>
+    `;
+
+        });
+        tableHtml += `</tbody></table>`;
+        $('#pendingTable').html(tableHtml);
+        // Initialize DataTables
+        const table = $("table").DataTable();
+    };
+
+    const verify = (dept, sem, uid) => {
+        const data = {
+            dept: dept,
+            semester: sem,
+            uid: uid
+        };
+        console.log(data);
+        axios.post('/api/verify-student', data)
+            .then((response) => {
+                if (response.data['status'] == 'success') {
+                    alert('Student removed successfully');
+                    getStudents();
+                } else {
+                    alert('Failed to remove student');
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
+
+    const remove = (dept, sem, uid) => {
+        const data = {
+            dept: dept,
+            semester: sem,
+            uid: uid
+        };
+        axios.post('/api/remove-student', data)
+            .then((response) => {
+                if (response.data['status'] == 'success') {
+                    alert('Student removed successfully');
+                    getStudents();
+                } else {
+                    alert('Failed to remove teacher');
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
+</script>
+<%- include('../common/footer.ejs') %>

@@ -1,0 +1,195 @@
+<%- include('../common/header.ejs') %>
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                Reports
+            </div>
+            <div class="card-body">
+                <div class="row gap-5">
+                    <div class="col-md-6">
+                        <form action="" onsubmit="return false">
+                            <div class="row d-flex flex-wrap">
+                                <div class="col-md-6">
+                                    <div class="form-group d-flex flex-wrap">
+                                        <label for="date" class="w-100">Date</label>
+                                        <input type="date" id="date" name="date" class="form-control"
+                                            onchange="$(this).css('border-color', 'green').next().text('')">
+                                        <span class="text-danger font-weight-bold"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group d-flex flex-wrap">
+                                        <label for="dept" class="w-100">Department</label>
+                                        <select name="" id="dept" class="dept form-select"
+                                            onchange="$(this).css('border-color', 'green').next().text('')">
+                                            <option value="">Select Department</option>
+                                            <% for(let e in departments) { %>
+                                            <option value="<%= e %>"><%= e %></option>
+                                            <% } %>
+                                        </select>
+
+                                        <span class="text-danger font-weight-bold"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mt-3">
+                                    <div class="form-group d-flex flex-wrap">
+                                        <label for="sem" class="w-100">Semester</label>
+                                        <select name="" id="sem" class="sem form-select"
+                                            onchange="$(this).css('border-color', 'green').next().text('')">
+                                            <option value="">Select Semester</option>
+                                            <%
+                                        function addOrdinalSuffix(num) {
+                                            const lastDigit = num % 10;
+                                            const lastTwoDigits = num % 100;
+                                          
+                                            if (lastDigit === 1 && lastTwoDigits !== 11) {
+                                              return num + "st";
+                                            } else if (lastDigit === 2 && lastTwoDigits !== 12) {
+                                              return num + "nd";
+                                            } else if (lastDigit === 3 && lastTwoDigits !== 13) {
+                                              return num + "rd";
+                                            } else {
+                                              return num + "th";
+                                            }
+                                        }
+                                        for(let i = 1; i<=6; i++) { %>
+                                            <option value="<%= i %>"><%= addOrdinalSuffix(i) %></option>
+                                            <% } %>
+                                        </select>
+                                        <span class="text-danger font-weight-bold"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mt-3">
+                                    <div class="form-group d-flex flex-wrap">
+                                        <label for="subject" class="w-100">Subject</label>
+                                        <select name="subject" id="subject" class="subject form-select"
+                                            onchange="$(this).css('border-color', 'green').next().text('')">
+                                            <option value="">Select Subject</option>
+                                        </select>
+                                        <span class="text-danger font-weight-bold"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6" style="margin-top: 38px;">
+                                    <input type="submit" class="btn btn-primary" value="Search">
+                                </div>
+                            </div>
+                        </form>
+                        <div class="table-responsive mt-5">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#dept').change(function () {
+            $('#sem').val('');
+            $('#subject').html('<option value="">Select Subject</option>');
+        });
+        $('#sem').change(function () {
+            let dept = $('#dept').val();
+            let sem = $('#sem').val();
+            if (dept == '' || sem == '') {
+                return;
+            }
+            showLoadingBar();
+            $.ajax({
+                url: '/api/getSubjects',
+                type: 'POST',
+                data: {
+                    dept: dept,
+                    sem: sem
+                },
+                success: function (jsonData) {
+                    hideLoadingBar();
+                    let options = '<option value="">Select Subject</option>';
+                    jsonData.subjects.forEach(subject => {
+                        options += `<option value="${subject}">${subject}</option>`;
+                    });
+                    $('#subject').html(options);
+                }
+            });
+        });
+    });
+    $('form').submit(function () {
+        let date = $('#date').val();
+        let dept = $('#dept').val();
+        let sem = $('#sem').val();
+        let subject = $('#subject').val();
+        if (date == '' || dept == '' || sem == '') {
+            if (date == '') {
+                $('#date').focus();
+                $('#date').css('border-color', 'red').next().text('Please fill this field!');
+            }
+            if (dept == '') {
+                $('#dept').focus();
+                $('#dept').css('border-color', 'red').next().text('Please fill this field!');
+            }
+            if (sem == '') {
+                $('#sem').focus();
+                $('#sem').css('border-color', 'red').next().text('Please fill this field!');
+            }
+            if (subject == '') {
+                $('#subject').focus();
+                $('#subject').css('border-color', 'red').next().text('Please fill this field!');
+            }
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Please fill all the fields!',
+            });
+            return false;
+        }
+        showLoadingBar();
+        let datatable;
+        $.ajax({
+            url: '/api/getAttendance',
+            type: 'POST',
+            data: {
+                date: date,
+                dept: dept,
+                sem: sem,
+                subject: subject
+            },
+            success: function (jsonData) {
+                hideLoadingBar();
+                const tableBody = document.querySelector("#tableBody");
+                let serialNumber = 1;
+                tableBody.innerHTML = '';
+                jsonData.list.forEach(item => {
+                    const row = tableBody.insertRow();
+                    const cell1 = row.insertCell();
+                    cell1.textContent = serialNumber++;
+                    Object.values(item).forEach(value => {
+                        const cell = row.insertCell();
+                        cell.textContent = value;
+                    });
+                });
+                // Set alignment for all columns to center
+                if (datatable) {
+                    datatable.destroy();
+                } else {
+                    datatable = $('table').DataTable();
+                    datatable.columns().every(function () {
+                        this.css('text-align', 'center');
+                    });
+                }
+            }
+        });
+    });
+</script>
+<%- include('../common/footer.ejs') %>

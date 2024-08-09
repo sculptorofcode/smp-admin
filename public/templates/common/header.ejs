@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <title>Dashboard - Admin Panel</title>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css?h=97380e22c8933e9aa79cbc2390b9f15a" />
+    <link rel="stylesheet" href="/assets/fonts/fontawesome-all.min.css?h=fbfa80fe81882dd47f8abd5cbb011b19" />
+    <link rel="stylesheet" href="/assets/css/styles.min.css?h=3db7a37dc048019533aad26146c577f5" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="/assets/css/style.css" />
+    <link rel="stylesheet" href="css/dataTables.dataTables.min.css" />
+    <link rel="stylesheet" href="sweetalert2.min.css" />
+    <link rel="stylesheet" href="driver.css">
+    <script src="jquery.min.js"></script>
+    <script src="driver.js.iife.js"></script>
+    <script src="js/dataTables.min.js"></script>
+    <script defer src="axios.min.js"></script>
+    <script defer src="sweetalert2.min.js"></script>
+    <script defer src="js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body id="page-top" class="sidebar-toggled">
+    <div id="loading-bar"></div>
+    <div class="load">
+        <div class="loader"></div>
+    </div>
+    <div id="wrapper">
+        <nav
+            class="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark toggled">
+            <div class="container-fluid d-flex flex-column p-0">
+                <a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="#">
+                    <div class="sidebar-brand-icon rotate-n-15">
+                        <i class="fas fa-laugh-wink"></i>
+                    </div>
+                    <div class="sidebar-brand-text mx-3"><span>Admin Panel</span></div>
+                </a>
+                <hr class="sidebar-divider my-0" />
+                <ul class="navbar-nav text-light" id="accordionSidebar">
+                    <% if (userdata.usertype == "admin") { %>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/home">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <% } else if (userdata.usertype == "hod") { %>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/hod-home">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <% } if (userdata.usertype == "admin") { %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/profile"><i class="fas fa-user"></i><span>Profile</span></a>
+                    </li>
+                    <% } else if (userdata.usertype == "hod") { %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/hod-profile"><i class="fas fa-user"></i><span>Profile</span></a>
+                    </li>
+                    <% } 
+                    if (userdata.usertype == "admin") { %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/add-hod"><i class="bi bi-person-add"></i><span>HOD</span></a>
+                    </li>
+                    <% } %>
+                    <li class="nav-item">
+                        <a class="nav-link collapsed" href="javascript:void(0)" data-toggle="collapse"
+                            data-target="#admin_setting" aria-expanded="true" aria-controls="admin_setting">
+                            <i class="bi bi-person-circle " style="font-size: 18px"></i>
+                            <span>Students</span>
+                            <i class="bi bi-caret-down-fill caret-icon caret-down"></i>
+                            <i class="bi bi-caret-up-fill caret-icon caret-up"></i>
+                        </a>
+                        <div id="admin_setting" class="sub-menu collapse ">
+                            <a class="nav-link text-white" href="/students"><span>Pending Students</span></a>
+                            <a class="nav-link text-white" href="/students-list"><span>Student List</span></a>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link collapsed" href="javascript:void(0)" data-toggle="collapse"
+                            data-target="#teacher" aria-expanded="true" aria-controls="teacher">
+                            <i class="bi bi-person-badge " style="font-size: 18px"></i>
+                            <span>Teachers</span>
+                            <i class="bi bi-caret-down-fill caret-icon caret-down"></i>
+                            <i class="bi bi-caret-up-fill caret-icon caret-up"></i>
+                        </a>
+                        <div id="teacher" class="sub-menu collapse">
+                            <a class="nav-link text-white" href="/pending-teachers"><span>Pending Teachers</span></a>
+                            <a class="nav-link text-white" href="/teachers-list"><span>Teachers List</span></a>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/reports"><i class="bi bi-clipboard-data-fill"></i><span>Get
+                                Reports</span></a>
+                    </li>
+                    <% if (userdata.usertype == "admin") { %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/settings"><i class="bi bi-gear-fill"></i><span>Settings</span></a>
+                    </li>
+                    <% } %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout"><i class="bi bi-box-arrow-left"></i><span>Logout</span></a>
+                    </li>
+                </ul>
+                <div class="text-center d-none d-md-inline">
+                    <button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button>
+                </div>
+            </div>
+        </nav>
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content">
+                <nav class="navbar navbar-expand bg-white shadow mb-2 topbar static-top navbar-light">
+                    <div class="container-fluid">
+                        <button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                    </div>
+                </nav>
+                <div class="contailer-fluid p-4 py-3" id="home">
