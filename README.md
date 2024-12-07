@@ -50,19 +50,19 @@ The SMP Admin Portal is a comprehensive web application designed to streamline t
 ## 🚀 Installation and Setup
 
 1. **📂 Clone the repository**:
-  ```bash
-   git clone https://github.com/CyberSaikat/smp-admin.git
-  ```
+      ```bash
+       git clone https://github.com/CyberSaikat/smp-admin.git
+      ```
 2. **📦 Install the dependencies**:
-  ```bash
-    npm install
-  ```
+      ```bash
+        npm install
+      ```
 3. **⚙️ Set up the environment variables**:
-   - Configure your database connection, API keys, and any other necessary environment variables.
+       - Configure your database connection, API keys, and any other necessary environment variables.
 4. **▶️ Start the development server**:
-   ```bash
-   nodemon index.js
-   ```
+       ```bash
+       nodemon index.js
+       ```
 
 
 ## **🤝 Contributing**
