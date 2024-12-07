@@ -60,9 +60,7 @@ The SMP Admin Portal is a comprehensive web application designed to streamline t
 3. **⚙️ Set up the environment variables**:
        - Configure your database connection, API keys, and any other necessary environment variables.
 4. **▶️ Start the development server**:
-       ```bash
-       nodemon index.js
-       ```
+       ``` nodemon index.js ```
 
 
 ## **🤝 Contributing**
