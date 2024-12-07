@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://raw.githubusercontent.com/CyberSaikat/smp-admin/main/public/assets/app_img/Github%20Banner.png?token=GHSAT0AAAAAACOUROG5BXFGFEFBHDSSESC6ZVVIKZA" width="100%" />
+    <img src="https://raw.githubusercontent.com/CyberSaikat/smp-admin/refs/heads/main/public/assets/app_img/Github%20Banner.png" width="100%" />
 </p>
 
 # 🎓 Student Management Portal (SMP) Admin Portal
