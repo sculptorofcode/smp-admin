@@ -1,8 +1,8 @@
+# 🎓 Student Management Portal (SMP) Admin Portal
+
 <p align="center">
     <img src="https://raw.githubusercontent.com/CyberSaikat/smp-admin/refs/heads/main/public/assets/app_img/Github%20Banner.png" width="100%" />
 </p>
-
-# 🎓 Student Management Portal (SMP) Admin Portal
 
 The SMP Admin Portal is a comprehensive web application designed to streamline the management of students, teachers, and academic departments within an educational institution. Built using Express.js and EJS, this portal empowers administrators with a user-friendly interface to perform crucial administrative tasks.
 
