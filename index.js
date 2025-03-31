@@ -858,7 +858,11 @@ app.get("/students-list", async (req, res) => {
         res.render("root/students-list", {
           userdata: user.val(),
           departments,
-          students: students.docs.map((doc) => doc.data()),
+          students: students.docs.map((doc) => {
+            const studentData = doc.data();
+            studentData.email = studentData.email.replace(/(.{2}).+(@.+)/, "$1***$2");
+            return studentData;
+          }),
         });
       } else {
         res.redirect("/?message=Session expired. Please login again.");
@@ -873,7 +877,11 @@ app.get("/students-list", async (req, res) => {
           .get();
         res.render("root/students-list", {
           userdata: user.val(),
-          students: students.docs.map((doc) => doc.data()),
+          students: students.docs.map((doc) => {
+            const studentData = doc.data();
+            studentData.email = studentData.email.replace(/(.{2}).+(@.+)/, "$1***$2");
+            return studentData;
+          }),
         });
       } else {
         res.redirect("/hod-login?message=Session expired. Please login again.");
